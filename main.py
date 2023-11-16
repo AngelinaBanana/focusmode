@@ -563,7 +563,6 @@ class FocusModeApp:
         self.long_break_slider.configure(state="normal")
         self.cycles_slider.configure(state="normal")
 
-
 # Main loop
 if __name__ == "__main__":
     app = FocusModeApp()
