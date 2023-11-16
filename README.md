@@ -14,10 +14,9 @@ A desktop Pomodoro Timer focused application designed to boost productivity by u
 - Lilpeanut167 has helped design the project.
 
 ## Disclaimers
-
 - This project is heavily in progress, and has multiple missing and broken features.
 - Further documentation will be created as this project progresses towards a full release.
 
 ## License
 
-This project is licensed under the Apache 2.0 License
+- This project is licensed under the Apache 2.0 License
