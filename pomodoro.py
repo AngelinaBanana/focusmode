@@ -16,18 +16,25 @@ import threading
 import simpleaudio as sa
 import time
 
+
 class PomodoroTimer:
-    #A Pomodoro timer that uses a separate thread to count down time.
-    
+    # A Pomodoro timer that uses a separate thread to count down time.
+
     def __init__(self):
         # Initialize the timer with default work time and no active thread.
         self.work_time = 25 * 60  # Default work time set to 25 minutes (in seconds).
         self.is_running = False  # Flag to indicate if the timer is running.
-        self.time_left = self.work_time  # Time remaining is initialized to the full work time.
+        self.time_left = (
+            self.work_time
+        )  # Time remaining is initialized to the full work time.
         self.thread = None  # Thread object for the timer's countdown.
-        self.playback_active = threading.Event()  # Event flag for managing audio playback.
+        self.playback_active = (
+            threading.Event()
+        )  # Event flag for managing audio playback.
         self.selected_noise_path = None  # Path to the selected background noise file.
-        self.currently_playing_wave_object = None  # Reference to the audio playback object.
+        self.currently_playing_wave_object = (
+            None  # Reference to the audio playback object.
+        )
 
     @property
     def is_default(self):
