@@ -26,16 +26,22 @@ import sys
 class SoundManager:
     def __init__(self):
         self.current_play_objects = {}
+        self.play_objects_lock = threading.Lock()
 
     def play_sound(self, sound_file):
-        if sound_file:
+        if sound_file and sound_file != "None":
+
             def thread_function(file):
                 play_obj = sa.WaveObject.from_wave_file(file).play()
-                self.current_play_objects[sound_file] = play_obj
-                play_obj.wait_done()  # Wait for the sound to finish playing
-                del self.current_play_objects[sound_file]  # Remove the play object from the dictionary
+                with self.play_objects_lock:
+                    self.current_play_objects[file] = play_obj
+                play_obj.wait_done()
+                with self.play_objects_lock:
+                    if file in self.current_play_objects:
+                        del self.current_play_objects[file]
 
             threading.Thread(target=thread_function, args=(sound_file,)).start()
+
 
 class FocusModeApp:
     def __init__(self):
@@ -66,7 +72,7 @@ class FocusModeApp:
             "White Noise": "sounds/whitenoise.wav",
         }
         # Initialize with default noise value
-        self.noise_var = customtkinter.StringVar(value="None") 
+        self.noise_var = customtkinter.StringVar(value="None")
 
         self.settings_file = "app_settings.json"
         # Load settings
@@ -87,31 +93,32 @@ class FocusModeApp:
         self.window.grid_columnconfigure((2, 3), weight=0)
         self.window.grid_rowconfigure((0, 1, 2), weight=1)
 
-
-
         self.setup_sidebar()
         self.setup_main_area()
-        
+
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.update_scrollregion()
         self.update_timer_display()
-        
+
     def setup_sidebar(self):
         # Create the sidebar canvas
         self.sidebar_width = 200
         self.sidebar_bg_color = "#2b2b2b"
-        
+
         self.sidebar_canvas = tkinter.Canvas(
-            self.window, bg=self.sidebar_bg_color, highlightthickness=0, width=self.sidebar_width
+            self.window,
+            bg=self.sidebar_bg_color,
+            highlightthickness=0,
+            width=self.sidebar_width,
         )
-        self.sidebar_canvas.pack(side='left', fill='y', expand=False)
+        self.sidebar_canvas.pack(side="left", fill="y", expand=False)
 
         # Create the scrollbar for the sidebar
         self.sidebar_scrollbar = customtkinter.CTkScrollbar(
             self.window, command=self.sidebar_canvas.yview
         )
-        self.sidebar_scrollbar.pack(side='left', fill='y')
+        self.sidebar_scrollbar.pack(side="left", fill="y")
 
         # Configure the canvas scroll command
         self.sidebar_canvas.configure(yscrollcommand=self.sidebar_scrollbar.set)
@@ -124,15 +131,17 @@ class FocusModeApp:
             corner_radius=0,
         )
         frame_id = self.sidebar_canvas.create_window(
-            (0, 0), window=self.sidebar_frame, anchor='nw', width=200
+            (0, 0), window=self.sidebar_frame, anchor="nw", width=200
         )
 
         # Bind the sidebar frame configure event to update the scroll region
-        self.sidebar_frame.bind('<Configure>', self.update_scrollregion)
+        self.sidebar_frame.bind("<Configure>", self.update_scrollregion)
 
         # Create sidebar widgets
         self.sidebar_label = customtkinter.CTkLabel(
-            self.sidebar_frame, text="Settings", font=customtkinter.CTkFont(size=20, weight="bold")
+            self.sidebar_frame,
+            text="Settings",
+            font=customtkinter.CTkFont(size=20, weight="bold"),
         )
         self.sidebar_label.pack(padx=20, pady=(20, 10))
 
@@ -143,9 +152,13 @@ class FocusModeApp:
         self.appearance_mode_label.pack(padx=20, pady=(10, 0), fill="x")
 
         self.appearance_mode_optionmenu = customtkinter.CTkOptionMenu(
-            self.sidebar_frame, values=["Light", "Dark"], command=self.change_appearance_mode
+            self.sidebar_frame,
+            values=["Light", "Dark"],
+            command=self.change_appearance_mode,
         )
-        self.appearance_mode_optionmenu.set(self.current_settings["appearance_mode"].capitalize())
+        self.appearance_mode_optionmenu.set(
+            self.current_settings["appearance_mode"].capitalize()
+        )
         self.appearance_mode_optionmenu.pack(padx=20, pady=(10, 0), fill="x")
 
         # Color Theme Dropdown
@@ -155,9 +168,13 @@ class FocusModeApp:
         self.color_theme_label.pack(padx=20, pady=(20, 0), fill="x")
 
         self.color_theme_optionmenu = customtkinter.CTkOptionMenu(
-            self.sidebar_frame, values=["Blue", "Green"], command=self.change_color_theme
+            self.sidebar_frame,
+            values=["Blue", "Green"],
+            command=self.change_color_theme,
         )
-        self.color_theme_optionmenu.set(self.current_settings["color_theme"].capitalize())
+        self.color_theme_optionmenu.set(
+            self.current_settings["color_theme"].capitalize()
+        )
         self.color_theme_optionmenu.pack(padx=20, pady=(10, 10), fill="x")
 
         # Background Noise Dropdown
@@ -170,7 +187,7 @@ class FocusModeApp:
             self.sidebar_frame,
             variable=self.noise_var,
             values=list(self.noise_options.keys()),
-            command=self.change_noise_selection
+            command=self.change_noise_selection,
         )
         self.noise_optionmenu.set(self.current_settings["background_noise"])
         self.noise_optionmenu.pack(padx=20, pady=(10, 10), fill="x")
@@ -190,7 +207,9 @@ class FocusModeApp:
 
         self.work_time_value_label = customtkinter.CTkLabel(self.sidebar_frame)
         self.work_time_value_label.pack(padx=20, pady=(0, 10))
-        self.work_time_value_label.configure(text=f"{self.timer.work_time // 60} minutes")
+        self.work_time_value_label.configure(
+            text=f"{self.timer.work_time // 60} minutes"
+        )
 
         # Short Break Slider
         self.short_break_label = customtkinter.CTkLabel(
@@ -206,7 +225,9 @@ class FocusModeApp:
 
         self.short_break_value_label = customtkinter.CTkLabel(self.sidebar_frame)
         self.short_break_value_label.pack(padx=20, pady=(0, 10))
-        self.short_break_value_label.configure(text=f"{self.timer.short_break // 60} minutes")
+        self.short_break_value_label.configure(
+            text=f"{self.timer.short_break // 60} minutes"
+        )
 
         # Long Break Slider
         self.long_break_label = customtkinter.CTkLabel(
@@ -222,7 +243,9 @@ class FocusModeApp:
 
         self.long_break_value_label = customtkinter.CTkLabel(self.sidebar_frame)
         self.long_break_value_label.pack(padx=20, pady=(0, 10))
-        self.long_break_value_label.configure(text=f"{self.timer.long_break // 60} minutes")
+        self.long_break_value_label.configure(
+            text=f"{self.timer.long_break // 60} minutes"
+        )
 
         # Cycles Before Long Break Slider
         self.cycles_label = customtkinter.CTkLabel(
@@ -231,7 +254,10 @@ class FocusModeApp:
         self.cycles_label.pack(padx=20, pady=(10, 0))
 
         self.cycles_slider = customtkinter.CTkSlider(
-            self.sidebar_frame, from_=2, to=8, command=self.update_cycles_before_long_break
+            self.sidebar_frame,
+            from_=2,
+            to=8,
+            command=self.update_cycles_before_long_break,
         )
         self.cycles_slider.set(self.timer.cycles_before_long_break)
         self.cycles_slider.pack(padx=20, pady=(5, 0))
@@ -241,27 +267,34 @@ class FocusModeApp:
         self.cycles_value_label.configure(text=f"{self.timer.cycles_before_long_break}")
 
     def setup_main_area(self):
-            # Get the current width and height of the window and calculate the content width
+        # Get the current width and height of the window and calculate the content width
         self.window_width = self.window.winfo_width()
-        self.content_width = self.window_width - self.sidebar_width  # Width excluding the sidebar
+        self.content_width = (
+            self.window_width - self.sidebar_width
+        )  # Width excluding the sidebar
         self.button_width = 200
         self.button_height = 80
         self.button_spacing = 20
         self.vertical_center = 0.4
         self.total_buttons_width = (3 * self.button_width) + (2 * self.button_spacing)
-        
+
         # Calculate the horizontal center of the content area for the timer and buttons
         self.content_center_x = self.sidebar_width + (self.content_width / 2)
-        
+
         # Timer Display
         self.timer_display = customtkinter.CTkLabel(
-            self.window, text='25:00', font=('Courier', 200)
+            self.window, text="25:00", font=("Courier", 200)
         )
-        self.timer_display.place(relx=0.5, x=(self.sidebar_width / 2), rely=self.vertical_center, anchor='center')
+        self.timer_display.place(
+            relx=0.5,
+            x=(self.sidebar_width / 2),
+            rely=self.vertical_center,
+            anchor="center",
+        )
 
         # Control Buttons
         # Start Button
-        self.start_button = customtkinter.CTkButton(    
+        self.start_button = customtkinter.CTkButton(
             self.window,
             text="Start",
             font=("Courier", 36),
@@ -270,10 +303,12 @@ class FocusModeApp:
             height=self.button_height,
         )
         self.start_button_x = self.content_center_x - (self.total_buttons_width / 2)
-        self.start_button.place(x=self.start_button_x, rely=self.vertical_center + 0.25, anchor="w")
+        self.start_button.place(
+            x=self.start_button_x, rely=self.vertical_center + 0.25, anchor="w"
+        )
 
         # Stop Button
-        self.stop_button = customtkinter.CTkButton(    
+        self.stop_button = customtkinter.CTkButton(
             self.window,
             text="Stop",
             font=("Courier", 36),
@@ -281,10 +316,14 @@ class FocusModeApp:
             width=self.button_width,
             height=self.button_height,
         )
-        self.stop_button.place(x=self.start_button_x + self.button_width + self.button_spacing, rely=self.vertical_center + 0.25, anchor="w")
+        self.stop_button.place(
+            x=self.start_button_x + self.button_width + self.button_spacing,
+            rely=self.vertical_center + 0.25,
+            anchor="w",
+        )
 
         # Reset Button
-        self.reset_button = customtkinter.CTkButton(    
+        self.reset_button = customtkinter.CTkButton(
             self.window,
             text="Reset",
             font=("Courier", 36),
@@ -292,10 +331,14 @@ class FocusModeApp:
             width=self.button_width,
             height=self.button_height,
         )
-        self.reset_button.place(x=self.start_button_x + 2 * (self.button_width + self.button_spacing), rely=self.vertical_center + 0.25, anchor="w")
+        self.reset_button.place(
+            x=self.start_button_x + 2 * (self.button_width + self.button_spacing),
+            rely=self.vertical_center + 0.25,
+            anchor="w",
+        )
 
     def update_scrollregion(self, event=None):
-        self.sidebar_canvas.configure(scrollregion=self.sidebar_canvas.bbox('all'))
+        self.sidebar_canvas.configure(scrollregion=self.sidebar_canvas.bbox("all"))
 
     def run(self):
         # Start the Tkinter event loop
@@ -305,7 +348,7 @@ class FocusModeApp:
         if tkinter.messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.stop_timer()
             self.save_settings(self.current_settings)  # Save settings before closing
-            self.window.destroy()  # This closes the application window
+            self.window.destroy()  # Close the application window
 
     def restart_application(self):
         self.save_settings(self.current_settings)  # Save the current settings
@@ -334,21 +377,40 @@ class FocusModeApp:
 
     def apply_settings(self, settings):
         # Apply appearance and color theme settings
-        customtkinter.set_appearance_mode(settings.get("appearance_mode", self.default_settings["appearance_mode"]))
-        customtkinter.set_default_color_theme(settings.get("color_theme", self.default_settings["color_theme"]))
+        customtkinter.set_appearance_mode(
+            settings.get("appearance_mode", self.default_settings["appearance_mode"])
+        )
+        customtkinter.set_default_color_theme(
+            settings.get("color_theme", self.default_settings["color_theme"])
+        )
 
         # Apply Pomodoro timer settings
-        self.timer.update_work_time(settings.get("work_time", self.default_settings["work_time"]))
-        self.timer.update_short_break(settings.get("short_break", self.default_settings["short_break"]))
-        self.timer.update_long_break(settings.get("long_break", self.default_settings["long_break"]))
-        self.timer.update_cycles_before_long_break(settings.get("cycles_before_long_break", self.default_settings["cycles_before_long_break"]))
+        self.timer.update_work_time(
+            settings.get("work_time", self.default_settings["work_time"])
+        )
+        self.timer.update_short_break(
+            settings.get("short_break", self.default_settings["short_break"])
+        )
+        self.timer.update_long_break(
+            settings.get("long_break", self.default_settings["long_break"])
+        )
+        self.timer.update_cycles_before_long_break(
+            settings.get(
+                "cycles_before_long_break",
+                self.default_settings["cycles_before_long_break"],
+            )
+        )
 
         # Apply background noise setting
-        noise_selection = settings.get("background_noise", self.default_settings["background_noise"])
+        noise_selection = settings.get(
+            "background_noise", self.default_settings["background_noise"]
+        )
         if noise_selection:  # If a noise is selected
             self.noise_var.set(noise_selection)  # Update the StringVar for the UI
             selected_noise_path = self.noise_options.get(noise_selection, None)
-            self.timer.selected_noise_path = selected_noise_path  # Set the noise path in the PomodoroTimer
+            self.timer.selected_noise_path = (
+                selected_noise_path  # Set the noise path in the PomodoroTimer
+            )
 
     # UI event handling functions
     def change_appearance_mode(self, new_appearance_mode):
@@ -356,8 +418,10 @@ class FocusModeApp:
         self.current_settings["appearance_mode"] = new_appearance_mode.lower()
 
         # Canvas background color set to appearance mode
-        canvas_color = self.appearance_mode_colors.get(new_appearance_mode.capitalize(), "#2b2b2b")
-        if hasattr(self, 'sidebar_canvas'):  # If sidebar_canvas exists
+        canvas_color = self.appearance_mode_colors.get(
+            new_appearance_mode.capitalize(), "#2b2b2b"
+        )
+        if hasattr(self, "sidebar_canvas"):  # If sidebar_canvas exists
             self.sidebar_canvas.configure(bg=canvas_color)
 
         self.save_settings(self.current_settings)
@@ -368,36 +432,39 @@ class FocusModeApp:
         if new_color_theme != self.current_settings["color_theme"]:
             if tkinter.messagebox.askyesno(
                 "Restart Required",
-                "The application must restart for the theme change to take effect. Restart now?"
+                "The application must restart for the theme change to take effect. Restart now?",
             ):
                 self.current_settings["color_theme"] = new_color_theme
                 self.save_settings(self.current_settings)
                 self.restart_application()
             else:
-                # Logic to reset the OptionMenu to the previous value, if necessary
-                self.color_theme_optionmenu.set(self.current_settings["color_theme"].capitalize())
-        # else:
-        #     # If the new theme is the same as the current, do nothing and ensure OptionMenu reflects this
-        #     self.color_theme_optionmenu.set(self.current_settings["color_theme"].capitalize())
-        
+                # Reset the OptionMenu to the previous value, if necessary
+                self.color_theme_optionmenu.set(
+                    self.current_settings["color_theme"].capitalize()
+                )
+
     def change_noise_selection(self, noise_name):
         selected_noise_path = self.noise_options.get(noise_name, None)
         self.current_settings["background_noise"] = noise_name
-        
+
         self.timer.stop_background_noise()
-        
+
         if selected_noise_path is None:
-            self.timer.set_noise("None")  # Assuming the PomodoroTimer handles "None" appropriately
+            self.timer.set_noise(None)
         else:
             self.timer.set_noise(selected_noise_path)
-            
+
         self.save_settings(self.current_settings)
 
     # Pomodoro timer interaction functions
     def update_work_time(self, value):
         int_value = round(float(value))
-        self.timer.update_work_time(int_value)  # Update the work time in the Pomodoro timer
-        self.work_time_value_label.configure(text=f"{int_value} minutes")  # Update the label
+        self.timer.update_work_time(
+            int_value
+        )  # Update the work time in the Pomodoro timer
+        self.work_time_value_label.configure(
+            text=f"{int_value} minutes"
+        )  # Update the label
         self.update_timer_display()
         self.current_settings["work_time"] = int_value  # Update the current settings
         self.save_settings(self.current_settings)  # Save the updated settings
@@ -425,7 +492,7 @@ class FocusModeApp:
         self.update_timer_display()
         self.current_settings["cycles_before_long_break"] = int_value
         self.save_settings(self.current_settings)
-        
+
     def update_timer_display(self):
         # Calculate the minutes and seconds from the time left
         minutes, seconds = divmod(self.timer.time_left, 60)
@@ -461,23 +528,23 @@ class FocusModeApp:
             self.disable_sliders()
 
     def stop_timer(self):
-            self.timer.stop()
-            self.timer.stop_background_noise()
-            self.update_timer_button_states()
-            self.sound_manager.play_sound("sounds/timerstop.wav")
-            self.noise_optionmenu.configure(state="normal")
-            # Enable sliders when the timer is stopped
-            self.enable_sliders()
+        self.timer.stop()
+        self.timer.stop_background_noise()
+        self.update_timer_button_states()
+        self.sound_manager.play_sound("sounds/timerstop.wav")
+        self.noise_optionmenu.configure(state="normal")
+        # Enable sliders when the timer is stopped
+        self.enable_sliders()
 
     def reset_timer(self):
-            self.timer.reset()
-            self.timer.stop_background_noise()
-            self.update_timer_display()
-            self.update_timer_button_states()
-            self.sound_manager.play_sound("sounds/timerreset.wav")
-            self.noise_optionmenu.configure(state="normal")
-            # Enable sliders when the timer is reset
-            self.enable_sliders()
+        self.timer.reset()
+        self.timer.stop_background_noise()
+        self.update_timer_display()
+        self.update_timer_button_states()
+        self.sound_manager.play_sound("sounds/timerreset.wav")
+        self.noise_optionmenu.configure(state="normal")
+        # Enable sliders when the timer is reset
+        self.enable_sliders()
 
     def disable_sliders(self):
         self.work_time_slider.configure(state="disabled")
@@ -491,10 +558,8 @@ class FocusModeApp:
         self.long_break_slider.configure(state="normal")
         self.cycles_slider.configure(state="normal")
 
-    # Additional methods for your application
-    # ...
 
-# Main loop and application instantiation
+# Main loop
 if __name__ == "__main__":
     app = FocusModeApp()
     app.run()
