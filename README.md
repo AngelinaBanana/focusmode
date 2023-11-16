@@ -3,14 +3,15 @@ A desktop Pomodoro Timer focused application designed to boost productivity by u
 
 ## Features
 
-- Customizable work, short break, and long break durations.
+- Customizable pomodoro timer settings.
 - Persistent settings saved across sessions.
 - Background noise options to improve focus.
-- Sleek and user-friendly interface.
+- Sleek, user-friendly, and customizable interface.
+- (Soon) Option to forcefully minimize distractions.
 
 ## Credits
 
-- Peanut has helped design the project and came up with essential features such as background noise.
+- Lilpeanut167 has helped design the project.
 
 ## Disclaimers
 
