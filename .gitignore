@@ -12,7 +12,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Random
 __pycache__/ 
-app_settings.json fb0ff9c09a2ddbdcd0955c9b31686d0ec095896e
+app_settings.json
 
 # Runtime data
 pids
