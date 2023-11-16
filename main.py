@@ -21,6 +21,7 @@ import customtkinter
 import json
 import os
 import sys
+import time
 
 
 class SoundManager:
@@ -349,6 +350,10 @@ class FocusModeApp:
             self.stop_timer()
             self.save_settings(self.current_settings)  # Save settings before closing
             self.window.destroy()  # Close the application window
+            
+            # Make sure script ends (Temporary fix for script not ending)
+            time.sleep(0.5)
+            os._exit(0) 
 
     def restart_application(self):
         self.save_settings(self.current_settings)  # Save the current settings
