@@ -22,20 +22,20 @@ class PomodoroTimer:
 
     def __init__(self, transition_callback=None):
         # Initialize the timer with default work time and no active thread.
-        
+
         self.work_time = 25 * 60  # Default work time set to 25 minutes (in seconds).
         self.short_break = 5 * 60  # Default short break in seconds
         self.long_break = 15 * 60  # Default long break in seconds
-        
-        self.cycles_before_long_break = 4 # Default cycles
-        self.current_cycle = 1 # Cycle counter
-        
-        self.on_break = False # Check if on break
+
+        self.cycles_before_long_break = 4  # Default cycles
+        self.current_cycle = 1  # Cycle counter
+
+        self.on_break = False  # Check if on break
         self.is_running = False  # Flag to indicate if the timer is running.
         self.time_left = (
             self.work_time
         )  # Time remaining is initialized to the full work time.
-        
+
         self.transition_callback = transition_callback
         self.thread = None  # Thread object for the timer's countdown.
         self.playback_active = (
@@ -68,7 +68,7 @@ class PomodoroTimer:
         if self.is_running:
             self.is_running = False
             self.transition()
-            
+
     def transition(self):
         print("Transitioning timer...")  # Debug print
         if self.on_break:
@@ -78,14 +78,17 @@ class PomodoroTimer:
             self.current_cycle += 1
         else:
             # Transition from work to break
-            if self.current_cycle % self.cycles_before_long_break == 0 and self.current_cycle != 0:
+            if (
+                self.current_cycle % self.cycles_before_long_break == 0
+                and self.current_cycle != 0
+            ):
                 self.time_left = self.long_break
             else:
                 self.time_left = self.short_break
             self.on_break = True
 
         self.start()  # Automatically start the next period
-        
+
         if self.transition_callback:
             self.transition_callback()
 

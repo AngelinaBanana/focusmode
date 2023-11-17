@@ -292,7 +292,7 @@ class FocusModeApp:
             rely=self.vertical_center,
             anchor="center",
         )
-        
+
         # Label to display the type of the timer
         self.timer_type_label = customtkinter.CTkLabel(
             self.window, text="Work Time", font=("Courier", 24)
@@ -363,10 +363,10 @@ class FocusModeApp:
             self.stop_timer()
             self.save_settings(self.current_settings)  # Save settings before closing
             self.window.destroy()  # Close the application window
-            
+
             # Make sure script ends (Temporary fix for script not ending)
             time.sleep(0.5)
-            os._exit(0) 
+            os._exit(0)
 
     def restart_application(self):
         self.save_settings(self.current_settings)  # Save the current settings
@@ -533,7 +533,7 @@ class FocusModeApp:
                 self.reset_button.configure(state="normal")
             else:
                 self.reset_button.configure(state="disabled")
-    
+
     def update_timer_type_label(self):
         if self.timer.on_break:
             if self.timer.current_cycle == 0:
@@ -542,10 +542,10 @@ class FocusModeApp:
                 self.timer_type_label.configure(text="Short Break")
         else:
             self.timer_type_label.configure(text="Work Time")
-            
+
     def update_cycles_count_label(self):
         self.cycles_count_label.configure(text=f"Cycle: {self.timer.current_cycle}")
-    
+
     def on_timer_transition(self):
         # Check if the application is running in the main thread
         if threading.current_thread() == threading.main_thread():
@@ -553,19 +553,19 @@ class FocusModeApp:
         else:
             # Schedule the update to be run in the main thread
             self.window.after(0, self.update_ui_for_timer_transition)
-            
+
         self.update_timer_type_label()
         self.update_cycles_count_label()
-                
+
     def update_ui_for_timer_transition(self):
         # Updates the UI when the timer transitions from one type of timer to another
         self.update_timer_display()
         self.update_timer_button_states()
         if self.timer.on_break:
-            self.timer_display.configure(text='Break Time')
+            self.timer_display.configure(text="Break Time")
         else:
-            self.timer_display.configure(text='Work Time')
-            
+            self.timer_display.configure(text="Work Time")
+
     def start_or_resume_timer(self):
         if not self.timer.is_running:
             self.timer.start()  # Start or resume the Pomodoro timer
@@ -609,6 +609,7 @@ class FocusModeApp:
         self.short_break_slider.configure(state="normal")
         self.long_break_slider.configure(state="normal")
         self.cycles_slider.configure(state="normal")
+
 
 # Main loop
 if __name__ == "__main__":
