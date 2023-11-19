@@ -333,6 +333,7 @@ class FocusModeApp:
             command=self.stop_timer,
             width=self.button_width,
             height=self.button_height,
+            state="disabled",  # default for startup
         )
         self.stop_button.place(
             x=self.start_button_x + self.button_width + self.button_spacing,
@@ -348,6 +349,7 @@ class FocusModeApp:
             command=self.reset_timer,
             width=self.button_width,
             height=self.button_height,
+            state="disabled",  # default for startup
         )
         self.reset_button.place(
             x=self.start_button_x + 2 * (self.button_width + self.button_spacing),
@@ -363,6 +365,7 @@ class FocusModeApp:
             command=self.reset_cycles,
             width=1.57 * self.button_width,
             height=self.button_height,
+            state="disabled",  # default for startup
         )
         self.cycle_reset_button.place(
             x=self.start_button_x, rely=self.vertical_center + 0.42, anchor="w"
@@ -578,6 +581,11 @@ class FocusModeApp:
     def update_cycles_count_label(self):
         self.cycles_count_label.configure(text=f"Cycle: {self.timer.current_cycle}")
 
+        if self.timer.current_cycle <= 1 and not self.timer.on_break:
+            self.cycle_reset_button.configure(state="disabled")
+        else:
+            self.cycle_reset_button.configure(state="normal")
+
     def update_ui_for_timer_transition(self):
         # Updates the UI when the timer transitions from one type of timer to another
         self.update_timer_display()
@@ -593,6 +601,7 @@ class FocusModeApp:
 
         self.update_timer_type_label()
         self.update_cycles_count_label()
+        self.sound_manager.play_sound("sounds/timerstop.wav")
 
     def start_or_resume_timer(self):
         if not self.timer.is_running:
@@ -606,11 +615,12 @@ class FocusModeApp:
                 self.noise_optionmenu.configure(state="disabled")
             self.disable_sliders()
 
-    def stop_timer(self):
+    def stop_timer(self, playnoise=None):
         self.timer.stop()
         self.timer.stop_background_noise()
         self.update_timer_button_states()
-        self.sound_manager.play_sound("sounds/timerstop.wav")
+        if playnoise:
+            self.sound_manager.play_sound("sounds/timerstop.wav")
         self.noise_optionmenu.configure(state="normal")
         # Enable sliders when the timer is stopped
         self.enable_sliders()
@@ -637,11 +647,13 @@ class FocusModeApp:
         self.update_timer_display()
         self.update_cycles_count_label()
         self.update_timer_type_label()
+        self.reset_button.configure(state="disabled")  # hard coded for now
 
     def skip_cycle(self):
         # End the current cycle and move to the next one.
         self.timer.transition()
-        self.stop_timer()
+        self.stop_timer(playnoise=False)
+        self.reset_button.configure(state="disabled")  # hard coded for now
 
     def disable_sliders(self):
         self.work_time_slider.configure(state="disabled")
