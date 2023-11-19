@@ -355,6 +355,34 @@ class FocusModeApp:
             anchor="w",
         )
 
+        # Cycle Counter Reset Button
+        self.cycle_reset_button = customtkinter.CTkButton(
+            self.window,
+            text="Reset Cycles",
+            font=("Courier", 36),
+            command=self.reset_cycles,
+            width=1.57 * self.button_width,
+            height=self.button_height,
+        )
+        self.cycle_reset_button.place(
+            x=self.start_button_x, rely=self.vertical_center + 0.42, anchor="w"
+        )
+
+        # Skip Current Cycle Button
+        self.skip_cycle_button = customtkinter.CTkButton(
+            self.window,
+            text="Skip Cycle",
+            font=("Courier", 36),
+            command=self.skip_cycle,
+            width=1.55 * self.button_width,
+            height=self.button_height,
+        )
+        self.skip_cycle_button.place(
+            x=self.start_button_x + 1.65 * self.button_width,
+            rely=self.vertical_center + 0.42,
+            anchor="w",
+        )
+
     def update_scrollregion(self, event=None):
         self.sidebar_canvas.configure(scrollregion=self.sidebar_canvas.bbox("all"))
 
@@ -597,6 +625,22 @@ class FocusModeApp:
         self.noise_optionmenu.configure(state="normal")
         # Enable sliders when the timer is reset
         self.enable_sliders()
+
+    def reset_cycles(self):
+        # Reset the cycle counter and the timer.
+        self.reset_timer()  # Reset the timer
+        self.timer.current_cycle = 1  # Reset the cycle count
+        self.timer.on_break = False  # Set the state to work period
+        self.timer.time_left = self.timer.work_time  # Reset the time left to work time
+
+        self.update_timer_display()  # Update the timer display
+        self.update_cycles_count_label()  # Update the cycles count label
+        self.update_timer_type_label()  # Update the timer type label
+
+    def skip_cycle(self):
+        # End the current cycle and move to the next one.
+        self.timer.transition()
+        self.stop_timer()
 
     def disable_sliders(self):
         self.work_time_slider.configure(state="disabled")
