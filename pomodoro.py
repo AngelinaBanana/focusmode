@@ -27,7 +27,7 @@ class PomodoroTimer:
         self.short_break = 5 * 60  # Default short break in seconds
         self.long_break = 15 * 60  # Default long break in seconds
 
-        self.cycles_before_long_break = 4  # Default cycles
+        self.cycles_before_long_break = 3  # Default cycles
         self.current_cycle = 1  # Cycle counter
 
         self.on_break = False  # Check if on break

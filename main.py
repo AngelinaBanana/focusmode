@@ -59,7 +59,7 @@ class FocusModeApp:
             "work_time": 25,
             "short_break": 5,
             "long_break": 15,
-            "cycles_before_long_break": 4,
+            "cycles_before_long_break": 3,
             "background_noise": "None",
         }
         # Appearance mode options
@@ -201,7 +201,7 @@ class FocusModeApp:
         self.work_time_label.pack(padx=20, pady=(10, 0))
 
         self.work_time_slider = customtkinter.CTkSlider(
-            self.sidebar_frame, from_=1, to=60, command=self.update_work_time
+            self.sidebar_frame, from_=3, to=60, command=self.update_work_time
         )
         self.work_time_slider.set(self.timer.work_time // 60)
         self.work_time_slider.pack(padx=20, pady=(5, 0))
@@ -219,7 +219,7 @@ class FocusModeApp:
         self.short_break_label.pack(padx=20, pady=(10, 0))
 
         self.short_break_slider = customtkinter.CTkSlider(
-            self.sidebar_frame, from_=1, to=15, command=self.update_short_break
+            self.sidebar_frame, from_=1, to=25, command=self.update_short_break
         )
         self.short_break_slider.set(self.timer.short_break // 60)
         self.short_break_slider.pack(padx=20, pady=(5, 0))
@@ -237,7 +237,7 @@ class FocusModeApp:
         self.long_break_label.pack(padx=20, pady=(10, 0))
 
         self.long_break_slider = customtkinter.CTkSlider(
-            self.sidebar_frame, from_=10, to=30, command=self.update_long_break
+            self.sidebar_frame, from_=3, to=60, command=self.update_long_break
         )
         self.long_break_slider.set(self.timer.long_break // 60)
         self.long_break_slider.pack(padx=20, pady=(5, 0))
