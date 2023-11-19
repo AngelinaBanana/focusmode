@@ -602,7 +602,8 @@ class FocusModeApp:
             self.update_timer_display()  # Update the timer display
             self.update_timer_button_states()  # Update the state of the control buttons
             self.sound_manager.play_sound("sounds/timerstart.wav")
-            self.noise_optionmenu.configure(state="disabled")
+            if not self.timer.on_break:
+                self.noise_optionmenu.configure(state="disabled")
             self.disable_sliders()
 
     def stop_timer(self):
@@ -628,14 +629,14 @@ class FocusModeApp:
 
     def reset_cycles(self):
         # Reset the cycle counter and the timer.
-        self.reset_timer()  # Reset the timer
-        self.timer.current_cycle = 1  # Reset the cycle count
-        self.timer.on_break = False  # Set the state to work period
-        self.timer.time_left = self.timer.work_time  # Reset the time left to work time
+        self.reset_timer()
+        self.timer.current_cycle = 1
+        self.timer.on_break = False
+        self.timer.time_left = self.timer.work_time
 
-        self.update_timer_display()  # Update the timer display
-        self.update_cycles_count_label()  # Update the cycles count label
-        self.update_timer_type_label()  # Update the timer type label
+        self.update_timer_display()
+        self.update_cycles_count_label()
+        self.update_timer_type_label()
 
     def skip_cycle(self):
         # End the current cycle and move to the next one.

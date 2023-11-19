@@ -146,9 +146,10 @@ class PomodoroTimer:
 
     def start_background_noise(self):
         # Start playing the background noise if a file path is set.
-        if self.selected_noise_path:
-            self.playback_active.set()
-            threading.Thread(target=self.play_sound_loop).start()
+        if not self.on_break:
+            if self.selected_noise_path:
+                self.playback_active.set()
+                threading.Thread(target=self.play_sound_loop).start()
 
     def stop_background_noise(self):
         # Stop any currently playing background noise.
