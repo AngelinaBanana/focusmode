@@ -298,13 +298,17 @@ class FocusModeApp:
             self.window, text="Cycle: 1", font=("Courier", 32)
         )
         self.cycles_count_label.configure(text=f"Cycle: {self.timer.current_cycle}")
-        self.cycles_count_label.place(relx=0.5, x=(self.sidebar_width / 2), rely=0.2, anchor="center")
+        self.cycles_count_label.place(
+            relx=0.5, x=(self.sidebar_width / 2), rely=0.2, anchor="center"
+        )
 
         # Label to display the type of the timer
         self.timer_type_label = customtkinter.CTkLabel(
             self.window, text="Work Time", font=("Courier", 32)
         )
-        self.timer_type_label.place(relx=0.5, x=(self.sidebar_width / 2), rely=0.15, anchor="center")
+        self.timer_type_label.place(
+            relx=0.5, x=(self.sidebar_width / 2), rely=0.15, anchor="center"
+        )
 
         # Control Buttons
         # Start Button
