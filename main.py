@@ -293,11 +293,18 @@ class FocusModeApp:
             anchor="center",
         )
 
+        # Label to display the cycles count
+        self.cycles_count_label = customtkinter.CTkLabel(
+            self.window, text="Cycle: 1", font=("Courier", 32)
+        )
+        self.cycles_count_label.configure(text=f"Cycle: {self.timer.current_cycle}")
+        self.cycles_count_label.place(relx=0.5, x=(self.sidebar_width / 2), rely=0.2, anchor="center")
+
         # Label to display the type of the timer
         self.timer_type_label = customtkinter.CTkLabel(
-            self.window, text="Work Time", font=("Courier", 24)
+            self.window, text="Work Time", font=("Courier", 32)
         )
-        self.timer_type_label.place(relx=0.5, rely=0.15, anchor="center")
+        self.timer_type_label.place(relx=0.5, x=(self.sidebar_width / 2), rely=0.15, anchor="center")
 
         # Control Buttons
         # Start Button
@@ -343,13 +350,6 @@ class FocusModeApp:
             rely=self.vertical_center + 0.25,
             anchor="w",
         )
-
-        # Label to display the cycles count
-        self.cycles_count_label = customtkinter.CTkLabel(
-            self.window, text="Cycle: 1", font=("Courier", 24)
-        )
-        self.cycles_count_label.configure(text=f"Cycle: {self.timer.current_cycle}")
-        self.cycles_count_label.place(relx=0.5, rely=0.1, anchor="center")
 
     def update_scrollregion(self, event=None):
         self.sidebar_canvas.configure(scrollregion=self.sidebar_canvas.bbox("all"))
@@ -536,7 +536,7 @@ class FocusModeApp:
 
     def update_timer_type_label(self):
         if self.timer.on_break:
-            if self.timer.current_cycle == 0:
+            if self.timer.time_left == self.timer.long_break:
                 self.timer_type_label.configure(text="Long Break")
             else:
                 self.timer_type_label.configure(text="Short Break")
@@ -545,6 +545,11 @@ class FocusModeApp:
 
     def update_cycles_count_label(self):
         self.cycles_count_label.configure(text=f"Cycle: {self.timer.current_cycle}")
+
+    def update_ui_for_timer_transition(self):
+        # Updates the UI when the timer transitions from one type of timer to another
+        self.update_timer_display()
+        self.update_timer_button_states()
 
     def on_timer_transition(self):
         # Check if the application is running in the main thread
@@ -556,15 +561,6 @@ class FocusModeApp:
 
         self.update_timer_type_label()
         self.update_cycles_count_label()
-
-    def update_ui_for_timer_transition(self):
-        # Updates the UI when the timer transitions from one type of timer to another
-        self.update_timer_display()
-        self.update_timer_button_states()
-        if self.timer.on_break:
-            self.timer_display.configure(text="Break Time")
-        else:
-            self.timer_display.configure(text="Work Time")
 
     def start_or_resume_timer(self):
         if not self.timer.is_running:

@@ -55,7 +55,7 @@ class PomodoroTimer:
         # Start the timer if it's not already running.
         if not self.is_running:
             self.is_running = True
-            print("Starting timer...")  # Debug print
+            # print("Starting timer...")  # Debug print
             self.thread = threading.Thread(target=self.run_timer)
             self.thread.start()
 
@@ -70,7 +70,7 @@ class PomodoroTimer:
             self.transition()
 
     def transition(self):
-        print("Transitioning timer...")  # Debug print
+        # print("Transitioning timer...")  # Debug print
         if self.on_break:
             # Transition from break to work
             self.time_left = self.work_time
