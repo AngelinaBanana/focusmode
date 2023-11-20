@@ -1,2 +1,2 @@
-customtkinter
-simpleaudio
+simpleaudio==1.0.4
+customtkinter==5.2.1
