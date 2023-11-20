@@ -74,7 +74,7 @@ class FocusModeApp:
         }
         # Initialize with default noise value
         self.noise_var = customtkinter.StringVar(value="None")
-
+        # Set settings file
         self.settings_file = "app_settings.json"
         # Load settings
         self.current_settings = self.load_settings()
@@ -294,20 +294,13 @@ class FocusModeApp:
         )
 
         # Label to display the cycles count
-        self.cycles_count_label = customtkinter.CTkLabel(
-            self.window, text="Cycle: 1", font=("Courier", 32)
+        self.timer_state_label = customtkinter.CTkLabel(
+            self.window,
+            text=f"Work Time | Cycle: {self.timer.current_cycle}",
+            font=("Courier", 32),
         )
-        self.cycles_count_label.configure(text=f"Cycle: {self.timer.current_cycle}")
-        self.cycles_count_label.place(
-            relx=0.5, x=(self.sidebar_width / 2), rely=0.2, anchor="center"
-        )
-
-        # Label to display the type of the timer
-        self.timer_type_label = customtkinter.CTkLabel(
-            self.window, text="Work Time", font=("Courier", 32)
-        )
-        self.timer_type_label.place(
-            relx=0.5, x=(self.sidebar_width / 2), rely=0.15, anchor="center"
+        self.timer_state_label.place(
+            relx=0.4925, x=(self.sidebar_width / 2), rely=0.2, anchor="center"
         )
 
         # Control Buttons
@@ -569,17 +562,44 @@ class FocusModeApp:
             else:
                 self.reset_button.configure(state="disabled")
 
-    def update_timer_type_label(self):
+    def update_timer_state_label(self):
+        self.current_cycle_len = len(str(self.timer.current_cycle))
+        self.timer_state_char_width = 0.009
+
         if self.timer.on_break:
             if self.timer.time_left == self.timer.long_break:
-                self.timer_type_label.configure(text="Long Break")
+                self.timer_state_label.place(
+                    relx=0.4832
+                    + self.timer_state_char_width * (self.current_cycle_len - 1),
+                    x=(self.sidebar_width / 2),
+                    rely=0.2,
+                    anchor="center",
+                )
+                self.timer_state_label.configure(
+                    text=f"Long Break | Cycle: {self.timer.current_cycle}"
+                )
             else:
-                self.timer_type_label.configure(text="Short Break")
+                self.timer_state_label.place(
+                    relx=0.475
+                    + self.timer_state_char_width * (self.current_cycle_len - 1),
+                    x=(self.sidebar_width / 2),
+                    rely=0.2,
+                    anchor="center",
+                )
+                self.timer_state_label.configure(
+                    text=f"Short Break | Cycle: {self.timer.current_cycle}"
+                )
         else:
-            self.timer_type_label.configure(text="Work Time")
-
-    def update_cycles_count_label(self):
-        self.cycles_count_label.configure(text=f"Cycle: {self.timer.current_cycle}")
+            self.timer_state_label.place(
+                relx=0.4925
+                + self.timer_state_char_width * (self.current_cycle_len - 1),
+                x=(self.sidebar_width / 2),
+                rely=0.2,
+                anchor="center",
+            )
+            self.timer_state_label.configure(
+                text=f"Work Time | Cycle: {self.timer.current_cycle}"
+            )
 
         if self.timer.current_cycle <= 1 and not self.timer.on_break:
             self.cycle_reset_button.configure(state="disabled")
@@ -599,8 +619,7 @@ class FocusModeApp:
             # Schedule the update to be run in the main thread
             self.window.after(0, self.update_ui_for_timer_transition)
 
-        self.update_timer_type_label()
-        self.update_cycles_count_label()
+        self.update_timer_state_label()
         self.sound_manager.play_sound("sounds/timerstop.wav")
 
     def start_or_resume_timer(self):
@@ -630,8 +649,7 @@ class FocusModeApp:
         self.timer.stop_background_noise()
         self.update_timer_display()
         self.update_timer_button_states()
-        self.update_timer_type_label()
-        self.update_cycles_count_label()
+        self.update_timer_state_label()
         self.sound_manager.play_sound("sounds/timerreset.wav")
         self.noise_optionmenu.configure(state="normal")
         # Enable sliders when the timer is reset
@@ -645,8 +663,7 @@ class FocusModeApp:
         self.timer.time_left = self.timer.work_time
 
         self.update_timer_display()
-        self.update_cycles_count_label()
-        self.update_timer_type_label()
+        self.update_timer_state_label()
         self.reset_button.configure(state="disabled")  # hard coded for now
 
     def skip_cycle(self):
