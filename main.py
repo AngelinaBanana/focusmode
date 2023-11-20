@@ -627,22 +627,21 @@ class FocusModeApp:
             self.timer.start()  # Start or resume the Pomodoro timer
             if self.timer.selected_noise_path:
                 self.timer.start_background_noise()
-            self.update_timer_display()  # Update the timer display
-            self.update_timer_button_states()  # Update the state of the control buttons
+            self.update_timer_display()
+            self.update_timer_button_states()
+            self.update_timer_controls_state()
             self.sound_manager.play_sound("sounds/timerstart.wav")
             if not self.timer.on_break:
                 self.noise_optionmenu.configure(state="disabled")
-            self.disable_sliders()
 
     def stop_timer(self, playnoise=None):
         self.timer.stop()
         self.timer.stop_background_noise()
         self.update_timer_button_states()
+        self.update_timer_controls_state()
         if playnoise:
             self.sound_manager.play_sound("sounds/timerstop.wav")
         self.noise_optionmenu.configure(state="normal")
-        # Enable sliders when the timer is stopped
-        self.enable_sliders()
 
     def reset_timer(self):
         self.timer.reset()
@@ -650,10 +649,9 @@ class FocusModeApp:
         self.update_timer_display()
         self.update_timer_button_states()
         self.update_timer_state_label()
+        self.update_timer_controls_state()
         self.sound_manager.play_sound("sounds/timerreset.wav")
         self.noise_optionmenu.configure(state="normal")
-        # Enable sliders when the timer is reset
-        self.enable_sliders()
 
     def reset_cycles(self):
         # Reset the cycle counter and the timer.
@@ -664,6 +662,7 @@ class FocusModeApp:
 
         self.update_timer_display()
         self.update_timer_state_label()
+        self.update_timer_controls_state()
         self.reset_button.configure(state="disabled")  # hard coded for now
 
     def skip_timer(self):
@@ -672,17 +671,18 @@ class FocusModeApp:
         self.stop_timer(playnoise=False)
         self.reset_button.configure(state="disabled")  # hard coded for now
 
-    def disable_sliders(self):
-        self.work_time_slider.configure(state="disabled")
-        self.short_break_slider.configure(state="disabled")
-        self.long_break_slider.configure(state="disabled")
-        self.cycles_slider.configure(state="disabled")
-
-    def enable_sliders(self):
-        self.work_time_slider.configure(state="normal")
-        self.short_break_slider.configure(state="normal")
-        self.long_break_slider.configure(state="normal")
-        self.cycles_slider.configure(state="normal")
+    def update_timer_controls_state(self):
+        # Enable controls only if the timer is in the default state
+        if self.timer.is_default and self.timer.current_cycle == 1:
+            self.work_time_slider.configure(state="normal")
+            self.short_break_slider.configure(state="normal")
+            self.long_break_slider.configure(state="normal")
+            self.cycles_slider.configure(state="normal")
+        else:
+            self.work_time_slider.configure(state="disabled")
+            self.short_break_slider.configure(state="disabled")
+            self.long_break_slider.configure(state="disabled")
+            self.cycles_slider.configure(state="disabled")
 
 
 # Main loop
