@@ -38,7 +38,8 @@ Before you begin, ensure you have the following installed on your system:
 ### Usage
 
 - **Customize settings:**
-  - Use the sliders in the settings panel to adjust the work and break durations to your preference. Use the dropdowns to customize your interface and background noise.
+  - Use the sliders to adjust the work and break durations to your preference.
+  - Use the dropdowns to customize your application's appearance and background noise.
 - **Start Focus Session:**
   - Click the 'Start' button to begin a focus session.
 - **Take Breaks:**
