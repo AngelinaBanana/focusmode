@@ -2,7 +2,6 @@
 A desktop Pomodoro Timer focused application designed to boost productivity by utilizing the Pomodoro technique with many customizable settings such as relaxing background noise, interface, timer settings, and more. The goal of the app is to support students with focus issues or ADHD by helping them stay on track and progress.
 
 
-
 ### Installation
 
 
@@ -33,7 +32,7 @@ Before you begin, ensure you have the following installed on your system:
      ```
      python main.py
      ```
-   - The Focus Mode Pomodoro Timer should now launch and be ready for use.
+   - The Focus Mode app should now launch and be ready for use.
 
 ### Usage
 
@@ -70,4 +69,4 @@ If you encounter any issues:
 
 ## License
 
-- This project is licensed under the Apache 2.0 License
+- This project is licensed under the Apache 2.0 License.  For more details, see [LICENSE](LICENSE).
