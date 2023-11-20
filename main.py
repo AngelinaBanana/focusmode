@@ -364,16 +364,16 @@ class FocusModeApp:
             x=self.start_button_x, rely=self.vertical_center + 0.42, anchor="w"
         )
 
-        # Skip Current Cycle Button
-        self.skip_cycle_button = customtkinter.CTkButton(
+        # Skip Current Timer Button
+        self.skip_timer_button = customtkinter.CTkButton(
             self.window,
-            text="Skip Cycle",
+            text="Skip Timer",
             font=("Courier", 36),
-            command=self.skip_cycle,
+            command=self.skip_timer,
             width=1.55 * self.button_width,
             height=self.button_height,
         )
-        self.skip_cycle_button.place(
+        self.skip_timer_button.place(
             x=self.start_button_x + 1.65 * self.button_width,
             rely=self.vertical_center + 0.42,
             anchor="w",
@@ -666,7 +666,7 @@ class FocusModeApp:
         self.update_timer_state_label()
         self.reset_button.configure(state="disabled")  # hard coded for now
 
-    def skip_cycle(self):
+    def skip_timer(self):
         # End the current cycle and move to the next one.
         self.timer.transition()
         self.stop_timer(playnoise=False)
