@@ -52,6 +52,14 @@ class FocusModeApp:
         self.sound_manager = SoundManager()
         # Initialize main window
         self.window = customtkinter.CTk()
+        # Path to the icon file
+        if os.name == "nt":
+            # Windows
+            self.window.iconbitmap("icons/icon.ico")
+        else:
+            # Other operating systems (untested)
+            icon_image = tk.PhotoImage(file="icons/icon.png")
+            self.window.iconphoto(True, icon_image)
         # Default settings
         self.default_settings = {
             "appearance_mode": "Dark",
